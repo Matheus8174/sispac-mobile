@@ -1,0 +1,17 @@
+A SispacTech é uma solução digital moderna e acessível, criada para facilitar o acesso a informações e recursos de segurança pública em tempo real. A plataforma centraliza dados sobre ocorrências criminais, mapas de risco, dicas de prevenção, e oferece um canal de comunicação bidirecional entre cidadãos e autoridades.
+
+Ela estará disponível para dispositivos móveis (iOS e Android), computadores e totens públicos, possibilitando que os cidadãos acessem a plataforma em qualquer lugar. A SispacTech será o ponto de encontro entre tecnologia e segurança pública, proporcionando um impacto positivo e mensurável na forma como a população interage com as forças de segurança e previne crimes.
+
+Com a implantação de ferramentas chave será possível a centralização de Informações de Segurança, onde a plataforma reunirá dados sobre boletins de ocorrência, entre outras ações de prevenção, tudo em um único local de fácil acesso, salientando que a atualização é contínua e coordenada com as forças de segurança;
+
+Com mapas interativos utilizando a geolocalização será possível visualizar as ocorrências mais recentes e a densidade dos crimes em tempo real;
+
+Comunicação Bidirecional com as Autoridades possibilita que os usuários enviem denúncias, ocorrências e sugestões diretamente às autoridades, ao mesmo tempo em que recebem alertas de emergência e orientações durante crises, como desastres naturais, acidentes ou situações de segurança; podendo também personalizar através da sua rotina, alertas de segurança a eventos que possam acontecer próximos ao seu trabalho ou sua casa.
+
+Incentivos para Aumentar o Engajamento e Colaboração dos Usuários
+
+* Pontuação e Recompensas por Colaborações: Para incentivar o engajamento dos usuários, a SispacTech implementa um sistema de pontos para quem colaborar enviando dados relevantes, como denúncias verificadas ou informações que auxiliem na prevenção de crimes. Esses pontos podem ser trocados por benefícios, como créditos de celular ou descontos em estabelecimentos parceiros.
+
+Integração com Dispositivos e Tecnologias Emergentes
+
+* Câmeras de Segurança Comunitárias: Para complementar a comunicação entre autoridades e cidadãos, a plataforma disponibiliza uma seção onde cidadãos de uma mesma comunidade possam voluntariamente compartilhar imagens de câmeras residenciais de segurança. Essa ideia traria uma rede colaborativa de vigilância, útil para fortalecer a comunidade e a segurança no entorno.
