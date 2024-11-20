@@ -34,6 +34,12 @@
         {
           "photosPermission": "De accesso ao ${PRODUCT_NAME} a sua camera"
         }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "De accesso ao ${PRODUCT_NAME} a sua localização para uma melhor experiencia"
+        }
       ]
     ],
     "experiments": {

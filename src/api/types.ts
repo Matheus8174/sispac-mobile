@@ -154,3 +154,22 @@ export type User = {
   createdAt: string;
   complaints: Complaint[];
 };
+
+export type Forum = {
+  subject: string;
+  tags: string[];
+  content: string;
+  cityId: string;
+};
+
+export type GetForumsByCity = {
+  cityId: string;
+  comments: string[];
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+  favoritedBy: [];
+  id: number;
+  subject: string;
+  tags: { name: string }[];
+};

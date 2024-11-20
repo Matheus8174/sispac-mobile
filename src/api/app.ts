@@ -3,8 +3,15 @@ import type { ImagePickerAsset } from 'expo-image-picker';
 
 import { token } from '@/core/auth';
 
-import { Complaint, CreateComplaint, User } from './types';
+import {
+  Complaint,
+  CreateComplaint,
+  Forum,
+  GetForumsByCity,
+  User
+} from './types';
 import { router } from 'expo-router';
+import type { CreateForumForm } from '@/app/create-forum';
 
 interface CreateUserDto {
   name: string;
@@ -122,6 +129,20 @@ export async function getUserAvatar() {
   const response = await appApi.patch('files/avatar', undefined, {
     responseType: 'arraybuffer'
   });
+
+  return response;
+}
+
+export async function createForum(data: Forum) {
+  const response = await appApi.post('forums', data);
+
+  return response;
+}
+
+export async function getForumsByCity(cityId: string) {
+  const response = await appApi.get<GetForumsByCity[]>(
+    `forums/citys/${cityId}`
+  );
 
   return response;
 }

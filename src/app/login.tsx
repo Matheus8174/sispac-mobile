@@ -44,11 +44,15 @@ function Home() {
         data: { accessToken }
       } = await authUser(data);
 
+      if (!accessToken) throw new Error('accessToken não existe');
+
       await signIn({ accessToken, refreshToken: '' });
 
-      router.push('/(app)');
+      router.push('/(app)/');
     } catch (err) {
       const { response } = err as AxiosError<{ message: string }>;
+
+      console.log('eeerro', response);
 
       if (response?.data)
         setError('password', { message: response.data.message });

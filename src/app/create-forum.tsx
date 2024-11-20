@@ -1,5 +1,5 @@
 import React from 'react';
-import { FlatList, TextInput as RNTextInput, View } from 'react-native';
+import { FlatList, View } from 'react-native';
 
 import { router } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
@@ -11,16 +11,17 @@ import TextInput, { ControlledTextInput } from '@/ui/text-input';
 import FormControl from '@/ui/form-control';
 import { useThemeConfig } from '@/core/hooks/use-theme-config';
 
-import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
+import BottomSheet from '@gorhom/bottom-sheet';
 import type { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { Municipio } from './(app)/forum';
-import axios from 'axios';
+import { allCitys, type Municipio } from './(app)/forum';
+import axios, { AxiosError } from 'axios';
 import clsx from 'clsx';
-import Animated from 'react-native-reanimated';
+import { createForum } from '@/api/app';
+import { useAuth } from '@/core/auth';
 
 const tags = [
   'Ação policial',
@@ -30,60 +31,111 @@ const tags = [
   'Homicídio/Tentativa'
 ];
 
+// let allCitys: Municipio[] = [];
+
+// axios
+//   .get<
+//     Municipio[]
+//   >('https://servicodados.ibge.gov.br/api/v1/localidades/municipios')
+//   .then((response) => {
+//     allCitys = response.data;
+//   });
+
 const schema = z.object({
   subject: z.string().min(6, 'O assunto precisa ter ao menos 6 caracteres'),
-  city: z.string(),
-  tag: z
+  city: z.object({
+    id: z.string(),
+    name: z
+      .string()
+      .refine(
+        (city) => !!allCitys.find(({ nome }) => nome === city),
+        'Essa cidade não existe ou não foi cadastrada'
+      )
+  }),
+  tags: z
     .array(z.string())
     .default([])
-    .refine((userTags) => userTags.find((e) => tags.find((a) => e === a)), {
-      message: 'Essa tag não existe'
-    })
+    .refine(
+      (userTags) =>
+        userTags.length > 0
+          ? userTags.find((e) => tags.find((a) => e === a))
+          : true,
+      {
+        message: 'Essa tag não existe'
+      }
+    ),
+  content: z.string().min(6, 'O conteúdo precisa ter ao menos 6 caracteres')
 });
 
-type CreateForumForm = z.infer<typeof schema>;
+export type CreateForumForm = z.infer<typeof schema>;
 
 function CreateForum() {
   const theme = useThemeConfig();
 
-  const { handleSubmit, control, setValue, watch } = useForm<CreateForumForm>({
-    resolver: zodResolver(schema),
-    defaultValues: { tag: [] }
-  });
+  const { handleSubmit, control, setValue, watch, setError } =
+    useForm<CreateForumForm>({
+      resolver: zodResolver(schema),
+      defaultValues: {
+        tags: [],
+        city: { name: '', id: '' }
+      }
+    });
 
-  const userTag = watch('tag');
+  const userTag = watch('tags');
 
   const city = watch('city');
 
-  // const [cityComplement, setCityComplement] = React.useState('');
-
   const [citysFiltered, setCitysFiltered] = React.useState<Municipio[]>([]);
-
-  const [allCitys, setAllCitys] = React.useState<Municipio[]>([]);
 
   const snapPoints = React.useMemo(() => ['50%'], []);
 
   const bottomSheetRef = React.useRef<BottomSheetMethods>(null);
 
-  async function handleFormSubmit(data: CreateForumForm) {
-    console.log(data);
+  const shouldShowCitysOptions =
+    citysFiltered.length > 0 && citysFiltered[0].nome !== city.name;
+
+  async function handleFormSubmit({ city, ...rest }: CreateForumForm) {
+    try {
+      await createForum({ ...rest, cityId: city.id });
+
+      router.back();
+    } catch (err) {
+      const { response } = err as AxiosError<{ message: string }>;
+
+      if (response?.data.message === 'city not exists') {
+        setError('city', { message: 'Essa cidade não existe' });
+      }
+    }
   }
 
-  React.useEffect(() => {
-    if (allCitys.length >= 1) return;
+  const handleTagPress = React.useCallback(
+    (tag: string, isSelected: boolean) => {
+      if (isSelected) {
+        const data = userTag.filter((e) => e !== tag);
 
-    axios
-      .get<
-        Municipio[]
-      >('https://servicodados.ibge.gov.br/api/v1/localidades/municipios')
-      .then((response) => {
-        setAllCitys(response.data);
+        return setValue('tags', data);
+      }
+
+      setValue('tags', [...userTag, tag]);
+    },
+    [userTag, setValue]
+  );
+
+  const updateCity = React.useCallback(
+    ({ nome, id }: { nome: string; id: number | string }) => {
+      setValue('city', {
+        name: nome,
+        id: id.toString()
       });
-  }, []);
+    },
+    []
+  );
 
   React.useEffect(() => {
-    setCitysFiltered(allCitys.filter(({ nome }) => nome.includes(city)));
-  }, [city]);
+    if (!city.name) return;
+
+    setCitysFiltered(allCitys.filter(({ nome }) => nome.includes(city.name)));
+  }, [city.name]);
 
   return (
     <View className="flex-1">
@@ -114,33 +166,48 @@ function CreateForum() {
         <View className="relative">
           <FormControl.Root>
             <FormControl.Label>Cidade:</FormControl.Label>
-            <Controller
-              name="city"
-              control={control}
-              render={({ field }) => (
-                <View className="relative">
+
+            <View className="relative">
+              <Controller
+                control={control}
+                name="city"
+                render={({ field, fieldState }) => (
                   <TextInput
-                    value={field.value}
-                    onChangeText={field.onChange}
+                    onChangeText={(t) =>
+                      field.onChange({ id: city.id, name: t })
+                    }
+                    value={field.value.name}
+                    //@ts-expect-error name exists
+                    error={fieldState.error?.name?.message}
+                    onSubmitEditing={() => {
+                      const { id, nome } = citysFiltered[0];
+
+                      if (id) updateCity({ id, nome });
+                    }}
+                    onBlur={() => setCitysFiltered([])}
                     placeholder="Tópico referente a qual cidade"
                     variant="outlined-gray"
+                    autoCapitalize="words"
                     className="h-14"
                   />
-                </View>
-              )}
-            />
+                )}
+              />
+            </View>
           </FormControl.Root>
-          {citysFiltered.length > 0 && (
-            <View className="max-w-96 overflow-hidden z-10 h-52 translate-y-full absolute bottom-0 ">
+          {shouldShowCitysOptions && (
+            <View className="max-w-96 rounded-lg overflow-hidden z-10 h-52 translate-y-full absolute bottom-0">
               <FlatList
                 style={{ flex: 1 }}
                 ItemSeparatorComponent={() => (
                   <View className="h-[1px] w-full bg-black-200 my-4" />
                 )}
-                contentContainerClassName="bg-black-100 p-4 rounded-lg"
+                contentContainerClassName="bg-black-100 p-4"
                 data={citysFiltered.slice(0, 4)}
                 renderItem={({ item: { nome, id } }) => (
-                  <TouchableOpacity key={id}>
+                  <TouchableOpacity
+                    key={id}
+                    onPress={() => updateCity({ nome, id })}
+                  >
                     <Text>{nome}</Text>
                   </TouchableOpacity>
                 )}
@@ -153,7 +220,7 @@ function CreateForum() {
           <FormControl.Label>Tags:</FormControl.Label>
 
           <Controller
-            name="tag"
+            name="tags"
             control={control}
             render={({ field, fieldState }) => (
               <TextInput
@@ -169,9 +236,11 @@ function CreateForum() {
           />
         </FormControl.Root>
         <FormControl.Root>
-          <FormControl.Label>Conteudo:</FormControl.Label>
-          <TextInput
-            placeholder="Conteudo"
+          <FormControl.Label>Conteúdo:</FormControl.Label>
+          <ControlledTextInput
+            name="content"
+            control={control}
+            placeholder="Conteúdo"
             variant="outlined-gray"
             textAlignVertical="top"
             className="h-40"
@@ -187,7 +256,11 @@ function CreateForum() {
             <Button.Text>Cancelar</Button.Text>
           </Button.Root>
 
-          <Button.Root onPress={handleSubmit(handleFormSubmit)}>
+          <Button.Root
+            onPress={handleSubmit(handleFormSubmit, (err) => {
+              console.log('ssss: ', err);
+            })}
+          >
             <Button.Text>Criar tópico</Button.Text>
           </Button.Root>
         </View>
@@ -203,21 +276,13 @@ function CreateForum() {
       >
         <View className="px-7 pt-7 gap-8 flex-1 flex-row flex-wrap">
           {tags.map((tag) => {
-            const isSelected = !!userTag.find((e) => e === tag);
+            const isSelected = userTag.includes(tag);
 
             return (
               <TouchableOpacity
                 key={tag}
                 activeOpacity={0.7}
-                onPress={() => {
-                  if (isSelected) {
-                    const data = userTag.filter((e) => e !== tag);
-
-                    return setValue('tag', data);
-                  }
-
-                  setValue('tag', [...userTag, tag]);
-                }}
+                onPress={() => handleTagPress(tag, isSelected)}
               >
                 <View
                   className={clsx(
