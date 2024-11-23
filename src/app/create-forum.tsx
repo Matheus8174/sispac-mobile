@@ -17,7 +17,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { z } from 'zod';
 import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { allCitys, type Municipio } from './(app)/forum';
+import { allCitys, type Municipio } from './(app)/forums';
 import axios, { AxiosError } from 'axios';
 import clsx from 'clsx';
 import { createForum } from '@/api/app';
@@ -30,16 +30,6 @@ const tags = [
   'Briga',
   'Homicídio/Tentativa'
 ];
-
-// let allCitys: Municipio[] = [];
-
-// axios
-//   .get<
-//     Municipio[]
-//   >('https://servicodados.ibge.gov.br/api/v1/localidades/municipios')
-//   .then((response) => {
-//     allCitys = response.data;
-//   });
 
 const schema = z.object({
   subject: z.string().min(6, 'O assunto precisa ter ao menos 6 caracteres'),

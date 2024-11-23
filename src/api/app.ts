@@ -4,6 +4,7 @@ import type { ImagePickerAsset } from 'expo-image-picker';
 import { token } from '@/core/auth';
 
 import {
+  Comment,
   Complaint,
   CreateComplaint,
   Forum,
@@ -62,7 +63,10 @@ export async function listAllUsers() {
 }
 
 export async function authUser(data: AuthUserDto) {
-  const response = await appApi.post<{ accessToken: string }>('/auth', data);
+  const response = await appApi.post<{ accessToken: string; id: string }>(
+    '/auth',
+    data
+  );
 
   return response;
 }
@@ -120,13 +124,13 @@ export async function uploadUserAvatar(name: string, image: ImagePickerAsset) {
 }
 
 export async function getUserAuthenticated() {
-  const response = await appApi.patch<User>('users/authenticated');
+  const response = await appApi.patch<User>('/users/authenticated');
 
   return response;
 }
 
 export async function getUserAvatar() {
-  const response = await appApi.patch('files/avatar', undefined, {
+  const response = await appApi.patch('/files/avatar', undefined, {
     responseType: 'arraybuffer'
   });
 
@@ -134,15 +138,56 @@ export async function getUserAvatar() {
 }
 
 export async function createForum(data: Forum) {
-  const response = await appApi.post('forums', data);
+  const response = await appApi.post('/forums', data);
 
   return response;
 }
 
-export async function getForumsByCity(cityId: string) {
+export async function getForumsByCity(cityId: string | number) {
   const response = await appApi.get<GetForumsByCity[]>(
-    `forums/citys/${cityId}`
+    `/forums/citys/${cityId}`
   );
 
   return response;
+}
+
+export interface Response extends Forum {
+  owner: {
+    name: string;
+  };
+}
+
+export async function getForumById(id: string | number) {
+  const response = await appApi.get<Response>(`/forums/${id}`);
+
+  return response;
+}
+
+export async function createComment(data: {
+  content: string;
+  forumId: string;
+}) {
+  const output = await appApi.post('/forums/comments', data);
+
+  return output;
+}
+
+export interface GetCommentsByForum extends Comment {
+  owner: { name: string; id: string };
+}
+
+export async function getCommentsByForum(forumId: string) {
+  const output = await appApi.get<GetCommentsByForum[]>(
+    `/forums/${forumId}/comments`
+  );
+
+  return output;
+}
+
+export async function removeComment(id: number) {
+  try {
+    await appApi.delete(`/forums/comments/${id}`);
+  } catch (err) {
+    console.log('ERR: ', err);
+  }
 }

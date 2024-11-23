@@ -2,7 +2,7 @@ import '../../global.css';
 
 import React from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Stack, SplashScreen } from 'expo-router';
+import { Stack, SplashScreen, router } from 'expo-router';
 import { useThemeConfig } from '@/core/hooks/use-theme-config';
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { ThemeProvider } from '@react-navigation/native';
@@ -11,6 +11,7 @@ import { View } from 'react-native';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { hydrateAuth } from '@/core/auth';
 import { removeToken } from '@/core/auth/utils';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 export const unstable_settings = {
   initialRouteName: '(app)'
@@ -57,6 +58,23 @@ function RootLayout() {
                     animation: 'none',
                     presentation: 'transparentModal',
                     navigationBarColor: '#10141f'
+                  }}
+                />
+
+                <Stack.Screen
+                  name="forum/[id]"
+                  options={{
+                    headerShown: true,
+                    headerTitle: '',
+                    headerLeft: ({ tintColor }) => (
+                      <MaterialCommunityIcons
+                        size={30}
+                        name="arrow-left"
+                        onPress={router.back}
+                        color={tintColor}
+                      />
+                    ),
+                    statusBarColor: theme.colors.card
                   }}
                 />
               </Stack>

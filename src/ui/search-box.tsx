@@ -16,6 +16,9 @@ const SearchBox = React.forwardRef<SearchBoxRef, TextInputProps>(
       () => ({
         focus() {
           inputRef.current?.focus();
+        },
+        blur() {
+          inputRef.current?.blur();
         }
       }),
       []

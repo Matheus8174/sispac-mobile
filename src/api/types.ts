@@ -160,6 +160,7 @@ export type Forum = {
   tags: string[];
   content: string;
   cityId: string;
+  updatedAt: string;
 };
 
 export type GetForumsByCity = {
@@ -172,4 +173,10 @@ export type GetForumsByCity = {
   id: number;
   subject: string;
   tags: { name: string }[];
+};
+
+export type Comment = {
+  id: number;
+  content: string;
+  updatedAt: Date;
 };

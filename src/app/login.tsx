@@ -1,5 +1,5 @@
 import React from 'react';
-import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link, useRouter } from 'expo-router';
 
@@ -10,7 +10,7 @@ import { z } from 'zod';
 import Button from '@/ui/button';
 import Text from '@/ui/text';
 import { ControlledTextInput } from '@/ui/text-input';
-import { authUser, createUser } from '@/api/app';
+import { authUser } from '@/api/app';
 import { AxiosError } from 'axios';
 import { useAuth } from '@/core/auth';
 
@@ -41,12 +41,14 @@ function Home() {
   async function handleFormSubmit(data: AuthUserForm) {
     try {
       const {
-        data: { accessToken }
+        data: { accessToken, id }
       } = await authUser(data);
+
+      console.log({ accessToken, id });
 
       if (!accessToken) throw new Error('accessToken não existe');
 
-      await signIn({ accessToken, refreshToken: '' });
+      await signIn({ accessToken, refreshToken: '', userId: id });
 
       router.push('/(app)/');
     } catch (err) {

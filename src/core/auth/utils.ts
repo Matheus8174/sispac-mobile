@@ -3,6 +3,7 @@ import { getItem, removeItem, setItem } from '@/core/storage';
 const TOKEN = 'token';
 
 export type TokenType = {
+  userId: string;
   accessToken: string;
   refreshToken: string;
 };

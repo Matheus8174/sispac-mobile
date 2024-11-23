@@ -55,7 +55,7 @@ function TabLayout() {
         />
 
         <Tabs.Screen
-          name="forum"
+          name="forums"
           options={{
             title: 'Forum',
             tabBarIcon: ({ color, size, focused }) => (

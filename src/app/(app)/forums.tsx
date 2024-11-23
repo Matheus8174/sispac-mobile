@@ -1,7 +1,12 @@
 import React from 'react';
-import { FlatList, TextInput, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  TouchableOpacity,
+  View,
+  TextInput as RNTextInput
+} from 'react-native';
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
-import { Link, router } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import axios from 'axios';
 
 import * as Location from 'expo-location';
@@ -13,6 +18,8 @@ import { useThemeConfig } from '@/core/hooks/use-theme-config';
 import FloatAction from '@/ui/floating-action';
 import { getForumsByCity } from '@/api/app';
 import { GetForumsByCity } from '@/api/types';
+import colors from '@/ui/colors';
+import TextInput from '@/ui/text-input';
 
 export type Municipio = {
   id: number;
@@ -50,13 +57,9 @@ axios
 function Forum() {
   const theme = useThemeConfig();
 
-  // const [location, setLocation] = React.useState<string | null>(null);
+  const router = useRouter();
 
   const [city, setCity] = React.useState('');
-
-  const cityTextInput = React.useRef<TextInput>(null);
-
-  // const [allCitys, setAllCitys] = React.useState<Municipio[]>([]);
 
   const [selectCityFocus, setSelectCityFocus] = React.useState(true);
 
@@ -64,16 +67,24 @@ function Forum() {
 
   const [forums, setForums] = React.useState<GetForumsByCity[]>([]);
 
-  const getForumByCity = async (cityId: string) => {
-    console.log(cityId);
-    const response = await getForumsByCity(cityId);
+  const cityTextInput = React.useRef<RNTextInput>(null);
 
-    console.log(response.data);
+  const handleCityShown = async (municipio?: Municipio) => {
+    const city =
+      municipio ?? allCitys.find(({ nome }) => nome === citysFiltered[0].nome);
 
-    setForums(response.data);
+    if (!city) return;
+
+    const { data } = await getForumsByCity(city.id);
+
+    setCity(city.nome);
+
+    setSelectCityFocus(false);
+
+    setForums(data);
+
+    cityTextInput.current?.blur();
   };
-
-  React.useEffect(() => {}, [citysFiltered]);
 
   React.useEffect(() => {
     async function getCurrentLocation() {
@@ -85,7 +96,7 @@ function Forum() {
 
       const cityLocation = address.city || address.subregion;
 
-      // if (cityLocation) setCity(cityLocation);
+      if (cityLocation) setCity(cityLocation);
     }
 
     getCurrentLocation();
@@ -93,7 +104,7 @@ function Forum() {
 
   return (
     <View className="flex-1 px-7 pt-10 relative">
-      <Text variant="h2">Foruns de discussão</Text>
+      <Text variant="h2">Foruns de discussão:</Text>
 
       <View className="p-4 bg-black-100 rounded-lg -mx-4 gap-4 mt-10">
         <View className="h-14">
@@ -105,14 +116,18 @@ function Forum() {
 
         <View className="flex-row gap-4">
           <View className="flex-1 h-14">
-            <SearchBox
-              onFocus={() => setSelectCityFocus(true)}
-              onBlur={() => setSelectCityFocus(false)}
-              placeholder="Escolha uma cidade"
+            <TextInput
               ref={cityTextInput}
-              autoCapitalize="words"
+              variant="outlined-gray"
+              options
               value={city}
+              placeholder="Escolha uma cidade"
+              autoCapitalize="words"
+              className="rounded-lg"
+              onSubmitEditing={() => handleCityShown()}
               onChangeText={(text) => {
+                if (!selectCityFocus) setSelectCityFocus(true);
+
                 setCitysFiltered(
                   allCitys.filter(({ nome }) =>
                     nome.toLowerCase().includes(text.toLowerCase())
@@ -125,17 +140,7 @@ function Forum() {
           </View>
           <Button.Root
             className="px-5 rounded-lg"
-            onPress={() => {
-              if (cityTextInput?.current?.blur) cityTextInput?.current?.blur();
-
-              const cityId = allCitys
-                .find(({ nome }) => nome === citysFiltered[0].nome)
-                ?.id.toString();
-
-              if (!cityId) return;
-
-              getForumByCity(cityId);
-            }}
+            onPress={() => handleCityShown()}
           >
             <Button.Text>Buscar</Button.Text>
           </Button.Root>
@@ -152,13 +157,7 @@ function Forum() {
             <TouchableOpacity
               activeOpacity={0.7}
               className="py-5"
-              onPress={() => {
-                // cityTextInput.current?.blur();
-
-                getForumByCity(item.id.toString());
-
-                setSelectCityFocus(false);
-              }}
+              onPress={() => handleCityShown(item)}
             >
               <View className="flex-row gap-4 items-center">
                 <FontAwesome6
@@ -179,23 +178,56 @@ function Forum() {
           ListEmptyComponent={() => (
             <View className="self-center mt-[50%] mx-5">
               <Link href="/create-forum">
-                <Text>
+                <Text variant="h4" className="font-normal underline leading-6">
                   Parece que ainda nimguém criou um forum em{' '}
-                  <Text className="!text-blue-100">
-                    {citysFiltered[0].nome}
-                  </Text>
-                  , <Text className="underline">que tal ser o primeiro!?</Text>
+                  <Text className="!text-blue-100">{city ?? 'sua cidade'}</Text>
+                  , que tal ser o primeiro!?
                 </Text>
               </Link>
             </View>
           )}
           keyExtractor={({ id }) => id.toString()}
-          contentContainerClassName="pt-2"
-          contentContainerStyle={{ gap: 20 }}
+          className="-mx-4"
+          keyboardShouldPersistTaps="handled"
+          contentContainerClassName="pt-10 gap-10"
           renderItem={({ item }) => (
-            <TouchableOpacity activeOpacity={0.7}>
-              <View className="flex-row gap-4 items-center">
-                <Text variant="h3">{item.subject}</Text>
+            <TouchableOpacity
+              onPress={() =>
+                router.navigate({
+                  pathname: '/forum/[id]',
+                  params: { id: item.id }
+                })
+              }
+              activeOpacity={0.7}
+              className="w-full p-5 gap-8 flex-row rounded-lg bg-black-100"
+            >
+              <MaterialCommunityIcons
+                name="star"
+                color={colors.orange[100]}
+                size={50}
+              />
+
+              <View className="gap-8 flex-1 items-start">
+                <Text variant="h2" numberOfLines={2}>
+                  {item.subject}
+                </Text>
+
+                <View className="flex-row gap-4">
+                  {item.tags.map(({ name }) => (
+                    <View
+                      className="bg-black-50 rounded-full justify-center items-center px-4 py-2"
+                      key={name}
+                    >
+                      <Text className="font-semibold" variant="subtitle">
+                        {name}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+
+                <View>
+                  <Text>{item.comments.length} Comentarios</Text>
+                </View>
               </View>
             </TouchableOpacity>
           )}
