@@ -1,12 +1,12 @@
 import React from 'react';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 
+import PagerView from 'react-native-pager-view';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 import Text from '@/ui/text';
 import TextInput from '@/ui/text-input';
-import PagerView from 'react-native-pager-view';
 import { useThemeConfig } from '@/core/hooks/use-theme-config';
 import {
   Response,
@@ -17,12 +17,12 @@ import {
   removeComment
 } from '@/api/app';
 import Button from '@/ui/button';
-import { useAuth, userId as _userId } from '@/core/auth';
+import { useAuth } from '@/core/auth';
 
 function Forum() {
-  const theme = useThemeConfig();
+  const token = useAuth();
 
-  const { userId } = useAuth();
+  const theme = useThemeConfig();
 
   const param = useLocalSearchParams<{ id: string }>();
 
@@ -142,16 +142,12 @@ function Forum() {
                     </Text>
                   </View>
                   <Text>{item.content}</Text>
-                  {userId === item.owner.id && (
+                  {token.token?.userId === item.owner.id && (
                     <View className="bg-slate-400d max-w-fit flex-row items-center self-end gap-5">
                       <Button.Root
                         className="py-2 px-4 bg-transparent"
                         onPress={async () => {
-                          try {
-                            await removeComment(item.id);
-                          } catch (err) {
-                            console.log(err);
-                          }
+                          await removeComment(item.id);
 
                           await getComments();
                         }}

@@ -96,7 +96,21 @@ function Forum() {
 
       const cityLocation = address.city || address.subregion;
 
-      if (cityLocation) setCity(cityLocation);
+      if (cityLocation) {
+        setCity(cityLocation);
+
+        const city = allCitys.find(({ nome }) => nome === cityLocation);
+
+        if (!city) return;
+
+        const { data } = await getForumsByCity(city.id);
+
+        setCity(city.nome);
+
+        setSelectCityFocus(false);
+
+        setForums(data);
+      }
     }
 
     getCurrentLocation();

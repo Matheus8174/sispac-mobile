@@ -69,6 +69,16 @@ function TabLayout() {
         />
 
         <Tabs.Screen
+          name="quiz"
+          options={{
+            title: 'Quiz',
+            tabBarIcon: ({ color, size }) => (
+              <MaterialIcons name="quiz" size={size} color={color} />
+            )
+          }}
+        />
+
+        <Tabs.Screen
           name="user-profile"
           options={{
             title: 'Usuário',

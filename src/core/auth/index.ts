@@ -5,7 +5,6 @@ import { getToken, removeToken, setToken, TokenType } from './utils';
 interface AuthState {
   token: TokenType | null;
   staySignedIn: boolean;
-  userId: null | string;
   status: 'idle' | 'signOut' | 'signIn';
   signIn: (data: TokenType) => Promise<void>;
   signOut: () => Promise<void>;
@@ -20,12 +19,12 @@ export const useAuth = create<AuthState>((set, get) => ({
   signIn: async (token) => {
     await setToken(token);
 
-    set({ status: 'signIn', ...token });
+    set({ status: 'signIn', token });
   },
   signOut: async () => {
     await removeToken();
 
-    set({ status: 'signOut', token: null, userId: null });
+    set({ status: 'signOut', token: null });
   },
   hydrate: async () => {
     try {
@@ -43,4 +42,3 @@ export const useAuth = create<AuthState>((set, get) => ({
 
 export const hydrateAuth = () => useAuth.getState().hydrate();
 export const token = () => useAuth.getState().token;
-export const userId = () => useAuth.getState().userId;

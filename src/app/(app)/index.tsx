@@ -1,13 +1,14 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-// import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
   withSpring
 } from 'react-native-reanimated';
-import { router, useLocalSearchParams } from 'expo-router';
+import { Stack, router, useLocalSearchParams } from 'expo-router';
+import { StatusBar } from 'expo-status-bar';
 import { getOccurrencesByCityAndState, listAllUsers } from '@/api/fogo-cruzado';
 import { FogoCruzadoOccurrences } from '@/api/types';
 import StatesPicker, { StatesPickerData, StatesPickerRef } from '@/ui/picker';
@@ -43,7 +44,7 @@ type OccurrenceItemProps = {
   location: string;
   date: string;
 };
-
+let n = 0;
 function OccurrenceItem({ title, date, location }: OccurrenceItemProps) {
   return (
     <View className="w-full flex-row gap-4 rounded-lg bg-black-50 p-4">
@@ -157,19 +158,25 @@ function Map() {
         className="flex-1"
         onTouchStart={() => pickerRef.current?.setShowPicker(false)}
       >
-        <View className="bg-black-200 flex-1"></View>
-        {/* <MapView style={styles.map} showsCompass={false}>
-        {occurencies &&
-          occurencies.map(({ longitude, latitude, id }) => (
-            <Marker
-              key={id}
-              coordinate={{
-                latitude: Number(latitude),
-                longitude: Number(longitude)
-              }}
-            />
-          ))}
-      </MapView> */}
+        <MapView
+          style={StyleSheet.absoluteFill}
+          // ref={(ref) => ref?.}
+          showsCompass={false}
+          provider={PROVIDER_GOOGLE}
+        >
+          {occurencies &&
+            occurencies.map(({ longitude, latitude, id, ...rest }, i) => (
+              <>
+                <Marker
+                  key={id}
+                  coordinate={{
+                    latitude: Number(latitude),
+                    longitude: Number(longitude)
+                  }}
+                />
+              </>
+            ))}
+        </MapView>
 
         <BottomSheet
           index={2}
@@ -211,14 +218,22 @@ function Map() {
                 </TouchableOpacity>
               ) : (
                 <BottomSheetScrollView contentContainerStyle={{ gap: 10 }}>
-                  {occurencies.map(({ id, address, contextInfo, date }, i) => (
-                    <OccurrenceItem
-                      key={id + date + i}
-                      location={address}
-                      title={contextInfo.mainReason.name}
-                      date={date}
-                    />
-                  ))}
+                  {occurencies.map(
+                    ({ id, address, contextInfo, date, ...rest }, i) => {
+                      if (n <= 0)
+                        console.log({ contextInfo, date, address, ...rest });
+
+                      n = 2;
+                      return (
+                        <OccurrenceItem
+                          key={id + date + i}
+                          location={address}
+                          title={contextInfo.mainReason.name}
+                          date={date}
+                        />
+                      );
+                    }
+                  )}
                 </BottomSheetScrollView>
               )}
             </View>
@@ -237,13 +252,5 @@ function Map() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  map: {
-    flex: 1,
-    width: '100%',
-    height: '100%'
-  }
-});
 
 export default Map;

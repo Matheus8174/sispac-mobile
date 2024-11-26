@@ -1,17 +1,93 @@
-A SispacTech é uma solução digital moderna e acessível, criada para facilitar o acesso a informações e recursos de segurança pública em tempo real. A plataforma centraliza dados sobre ocorrências criminais, mapas de risco, dicas de prevenção, e oferece um canal de comunicação bidirecional entre cidadãos e autoridades.
+A modelagem de dados descrita nas entidades criadas com TypeORM reflete as relações entre os seguintes elementos: **usuários (users)**, **reclamações (complaints)**, **comentários (comments)**, **fóruns (forums)** e **tags (tags)**. Abaixo está a descrição detalhada de cada tabela e suas relações, em formato relacional:
 
-Ela estará disponível para dispositivos móveis (iOS e Android), computadores e totens públicos, possibilitando que os cidadãos acessem a plataforma em qualquer lugar. A SispacTech será o ponto de encontro entre tecnologia e segurança pública, proporcionando um impacto positivo e mensurável na forma como a população interage com as forças de segurança e previne crimes.
+---
 
-Com a implantação de ferramentas chave será possível a centralização de Informações de Segurança, onde a plataforma reunirá dados sobre boletins de ocorrência, entre outras ações de prevenção, tudo em um único local de fácil acesso, salientando que a atualização é contínua e coordenada com as forças de segurança;
+### **Tabela: Users**
+**Descrição**: Representa os usuários do sistema.
 
-Com mapas interativos utilizando a geolocalização será possível visualizar as ocorrências mais recentes e a densidade dos crimes em tempo real;
+| Campo         | Tipo        | Restrições            |
+|---------------|-------------|-----------------------|
+| id            | UUID        | PRIMARY KEY           |
+| name          | VARCHAR     | NOT NULL              |
+| email         | VARCHAR     | UNIQUE, NOT NULL      |
+| password      | VARCHAR     | NOT NULL              |
+| avatar        | VARCHAR     | NULLABLE              |
+| created_at    | TIMESTAMP   | NOT NULL, DEFAULT NOW |
 
-Comunicação Bidirecional com as Autoridades possibilita que os usuários enviem denúncias, ocorrências e sugestões diretamente às autoridades, ao mesmo tempo em que recebem alertas de emergência e orientações durante crises, como desastres naturais, acidentes ou situações de segurança; podendo também personalizar através da sua rotina, alertas de segurança a eventos que possam acontecer próximos ao seu trabalho ou sua casa.
+**Relações**:
+- **One-to-Many** com `complaints`: Um usuário pode criar várias reclamações.
+- **One-to-Many** com `forums`: Um usuário pode criar vários fóruns.
+- **One-to-Many** com `comments`: Um usuário pode criar vários comentários.
+- **Many-to-Many** com `forums` (favoritos): Um usuário pode favoritar vários fóruns.
 
-Incentivos para Aumentar o Engajamento e Colaboração dos Usuários
+---
 
-* Pontuação e Recompensas por Colaborações: Para incentivar o engajamento dos usuários, a SispacTech implementa um sistema de pontos para quem colaborar enviando dados relevantes, como denúncias verificadas ou informações que auxiliem na prevenção de crimes. Esses pontos podem ser trocados por benefícios, como créditos de celular ou descontos em estabelecimentos parceiros.
+### **Tabela: Complaints**
+**Descrição**: Representa reclamações feitas pelos usuários.
 
-Integração com Dispositivos e Tecnologias Emergentes
+| Campo         | Tipo        | Restrições            |
+|---------------|-------------|-----------------------|
+| id            | SERIAL      | PRIMARY KEY           |
+| detail        | TEXT        | NOT NULL              |
+| location      | TEXT        | NOT NULL              |
+| images        | TEXT[]      | NULLABLE              |
+| created_at    | TIMESTAMP   | NOT NULL, DEFAULT NOW |
 
-* Câmeras de Segurança Comunitárias: Para complementar a comunicação entre autoridades e cidadãos, a plataforma disponibiliza uma seção onde cidadãos de uma mesma comunidade possam voluntariamente compartilhar imagens de câmeras residenciais de segurança. Essa ideia traria uma rede colaborativa de vigilância, útil para fortalecer a comunidade e a segurança no entorno.
+**Relações**:
+- **Many-to-One** com `users`: Cada reclamação pertence a um usuário.
+
+---
+
+### **Tabela: Forums**
+**Descrição**: Representa fóruns criados por usuários.
+
+| Campo         | Tipo        | Restrições            |
+|---------------|-------------|-----------------------|
+| id            | SERIAL      | PRIMARY KEY           |
+| subject       | VARCHAR     | NOT NULL              |
+| content       | TEXT        | NOT NULL              |
+| cityId        | VARCHAR     | NOT NULL              |
+| created_at    | TIMESTAMP   | NOT NULL, DEFAULT NOW |
+| updated_at    | TIMESTAMP   | NOT NULL, DEFAULT NOW |
+
+**Relações**:
+- **Many-to-One** com `users`: Cada fórum pertence a um usuário.
+- **One-to-Many** com `comments`: Um fórum pode ter vários comentários.
+- **Many-to-Many** com `users` (favoritos): Pode ser favoritado por vários usuários.
+- **Many-to-Many** com `tags`: Pode ter várias tags associadas.
+
+---
+
+### **Tabela: Comments**
+**Descrição**: Representa comentários feitos em fóruns.
+
+| Campo         | Tipo        | Restrições            |
+|---------------|-------------|-----------------------|
+| id            | SERIAL      | PRIMARY KEY           |
+| content       | TEXT        | NOT NULL              |
+| updated_at    | TIMESTAMP   | NOT NULL, DEFAULT NOW |
+
+**Relações**:
+- **Many-to-One** com `users`: Cada comentário pertence a um usuário.
+- **Many-to-One** com `forums`: Cada comentário pertence a um fórum.
+
+---
+
+### **Tabela: Tags**
+**Descrição**: Representa tags associadas a fóruns.
+
+| Campo         | Tipo        | Restrições            |
+|---------------|-------------|-----------------------|
+| name          | VARCHAR     | PRIMARY KEY, UNIQUE   |
+
+**Relações**:
+- **Many-to-Many** com `forums`: Pode estar associada a vários fóruns.
+
+---
+
+### **Modelagem Geral (Diagrama de Relações)**:
+1. **Usuário (User)** tem uma relação **1:N** com Reclamações (Complaint), Fóruns (Forum), e Comentários (Comment).
+2. **Fórum (Forum)** tem uma relação **1:N** com Comentários (Comment) e **N:M** com Usuários (Users) e Tags (Tags).
+3. **Tag** tem uma relação **N:M** com Fóruns (Forum).
+
+Se precisar do esquema em formato gráfico ou SQL gerado a partir dessas entidades, posso ajudar!
