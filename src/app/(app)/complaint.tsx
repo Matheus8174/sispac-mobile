@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { SafeAreaView, View } from 'react-native';
 
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -62,10 +62,8 @@ function Complaint() {
   }
 
   return (
-    <View className="px-7 pt-10 pb-5 gap-12">
-      <Text variant="h2" onPress={() => router.push('/login')}>
-        Formulário de denuncia
-      </Text>
+    <SafeAreaView className=" flex-1 px-7 pt-10 pb-5 gap-12">
+      <Text variant="h2">Formulário de denuncia</Text>
 
       <FormControl.Root>
         <FormControl.Label>Localização:</FormControl.Label>
@@ -98,7 +96,7 @@ function Complaint() {
       <Button.Root onPress={handleSubmit(handleFormSubmit)}>
         <Button.Text>Enviar</Button.Text>
       </Button.Root>
-    </View>
+    </SafeAreaView>
   );
 }
 

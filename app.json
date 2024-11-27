@@ -45,7 +45,8 @@
         {
           "locationAlwaysAndWhenInUsePermission": "De accesso ao ${PRODUCT_NAME} a sua localização para uma melhor experiencia"
         }
-      ]
+      ],
+      ["react-native-edge-to-edge"]
     ],
     "experiments": {
       "typedRoutes": true

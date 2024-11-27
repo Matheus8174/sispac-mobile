@@ -44,8 +44,6 @@ function Home() {
         data: { accessToken, id }
       } = await authUser(data);
 
-      console.log({ accessToken, id });
-
       if (!accessToken) throw new Error('accessToken não existe');
 
       await signIn({ accessToken, refreshToken: '', userId: id });

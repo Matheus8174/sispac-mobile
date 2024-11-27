@@ -53,15 +53,6 @@ function RootLayout() {
                 <Stack.Screen name="register" />
 
                 <Stack.Screen
-                  name="modal"
-                  options={{
-                    animation: 'none',
-                    presentation: 'transparentModal',
-                    navigationBarColor: '#10141f'
-                  }}
-                />
-
-                <Stack.Screen
                   name="forum/[id]"
                   options={{
                     headerShown: true,
@@ -76,6 +67,11 @@ function RootLayout() {
                     ),
                     statusBarColor: theme.colors.card
                   }}
+                />
+
+                <Stack.Screen
+                  name="(modals)"
+                  options={{ presentation: 'transparentModal' }}
                 />
               </Stack>
             </BottomSheetModalProvider>

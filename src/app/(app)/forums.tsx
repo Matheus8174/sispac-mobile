@@ -3,7 +3,8 @@ import {
   FlatList,
   TouchableOpacity,
   View,
-  TextInput as RNTextInput
+  TextInput as RNTextInput,
+  SafeAreaView
 } from 'react-native';
 import { FontAwesome6, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Link, useRouter } from 'expo-router';
@@ -117,7 +118,7 @@ function Forum() {
   }, []);
 
   return (
-    <View className="flex-1 px-7 pt-10 relative">
+    <SafeAreaView className="flex-1 px-7 pt-10 relative">
       <Text variant="h2">Foruns de discussão:</Text>
 
       <View className="p-4 bg-black-100 rounded-lg -mx-4 gap-4 mt-10">
@@ -255,7 +256,7 @@ function Forum() {
           color={theme.colors.primary}
         />
       </FloatAction>
-    </View>
+    </SafeAreaView>
   );
 }
 

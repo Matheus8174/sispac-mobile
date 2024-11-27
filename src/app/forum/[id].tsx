@@ -2,7 +2,12 @@ import React from 'react';
 import { FlatList, TouchableOpacity, View } from 'react-native';
 
 import PagerView from 'react-native-pager-view';
-import { Stack, useLocalSearchParams } from 'expo-router';
+import {
+  Stack,
+  router,
+  useFocusEffect,
+  useLocalSearchParams
+} from 'expo-router';
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 
 import Text from '@/ui/text';
@@ -38,15 +43,19 @@ function Forum() {
     getForumById(param.id).then(({ data }) => {
       setForum(data);
     });
-
-    getComments();
   }, []);
 
-  async function getComments() {
+  const getComments = async () => {
     const { data } = await getCommentsByForum(param.id);
 
     setComments(data);
-  }
+  };
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getComments();
+    }, [])
+  );
 
   async function handleSubmit() {
     await createComment({ content, forumId: param.id });
@@ -147,9 +156,10 @@ function Forum() {
                       <Button.Root
                         className="py-2 px-4 bg-transparent"
                         onPress={async () => {
-                          await removeComment(item.id);
-
-                          await getComments();
+                          router.push({
+                            pathname: '/(modals)/deleteComment',
+                            params: { id: item.id }
+                          });
                         }}
                       >
                         <Button.Text className="text-blue-100">

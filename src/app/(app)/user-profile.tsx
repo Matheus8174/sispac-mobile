@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, TouchableOpacity, View } from 'react-native';
 
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import type { BottomSheetMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
@@ -24,6 +24,8 @@ import { useAuth } from '@/core/auth';
 import Image, { ImageRef } from '@/ui/Image';
 
 function UserProfile() {
+  const { signOut } = useAuth();
+
   const [user, setUser] = React.useState<User>();
 
   const { token } = useAuth();
@@ -66,7 +68,7 @@ function UserProfile() {
   }, []);
 
   return (
-    <View className="flex-1">
+    <SafeAreaView className="flex-1">
       <View
         className="justify-center px-7 pt-5 gap-10"
         onTouchStart={() => bottomSheetRef.current?.close()}
@@ -74,7 +76,7 @@ function UserProfile() {
         <View className="p-2 rounded-full border border-blue-100 self-center relative">
           <Image
             ref={imageRef}
-            cachePolicy={'none'}
+            cachePolicy="none"
             className="size-[135] rounded-full"
             placeholder={require('@/assets/person.svg')}
             source={{
@@ -128,6 +130,7 @@ function UserProfile() {
 
         <TouchableOpacity
           activeOpacity={0.7}
+          onPress={async () => await signOut()}
           className="rounded-md flex-row items-center gap-4 bg-black-100 px-4 py-3"
         >
           <MaterialIcons name="logout" size={30} color={colors.red[100]} />
@@ -179,7 +182,7 @@ function UserProfile() {
           </TouchableOpacity>
         </View>
       </BottomSheet>
-    </View>
+    </SafeAreaView>
   );
 }
 

@@ -1,15 +1,15 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Callout, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import Animated, {
   interpolate,
   useAnimatedStyle,
   useSharedValue,
   withSpring
 } from 'react-native-reanimated';
-import { Stack, router, useLocalSearchParams } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import { getOccurrencesByCityAndState, listAllUsers } from '@/api/fogo-cruzado';
+import { router, useLocalSearchParams } from 'expo-router';
+
+import { getOccurrencesByCityAndState } from '@/api/fogo-cruzado';
 import { FogoCruzadoOccurrences } from '@/api/types';
 import StatesPicker, { StatesPickerData, StatesPickerRef } from '@/ui/picker';
 import SearchBox from '@/ui/search-box';
@@ -19,6 +19,7 @@ import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import colors from '@/ui/colors';
 
 import Text from '@/ui/text';
+import { cssInterop } from 'nativewind';
 
 const states = [
   {
@@ -47,7 +48,7 @@ type OccurrenceItemProps = {
 let n = 0;
 function OccurrenceItem({ title, date, location }: OccurrenceItemProps) {
   return (
-    <View className="w-full flex-row gap-4 rounded-lg bg-black-50 p-4">
+    <View className="w-full flex-row gap-4 rounded-lg bg-black-100 p-4">
       <View className="aspect-square size-16 self-center rounded-full bg-blue-100" />
 
       <View className="flex-1 gap-4">
@@ -85,6 +86,19 @@ function OccurrenceItem({ title, date, location }: OccurrenceItemProps) {
     </View>
   );
 }
+
+const brazil = {
+  latitude: -12.235,
+  longitude: -50.9253,
+  latitudeDelta: 40,
+  longitudeDelta: 40
+};
+
+const MapCallout = cssInterop(Callout, {
+  className: {
+    target: 'style'
+  }
+});
 
 function Map() {
   const [state, setState] = React.useState<StatesPickerData>();
@@ -160,26 +174,63 @@ function Map() {
       >
         <MapView
           style={StyleSheet.absoluteFill}
+          initialRegion={brazil}
           // ref={(ref) => ref?.}
           showsCompass={false}
           provider={PROVIDER_GOOGLE}
         >
           {occurencies &&
-            occurencies.map(({ longitude, latitude, id, ...rest }, i) => (
-              <>
-                <Marker
-                  key={id}
-                  coordinate={{
-                    latitude: Number(latitude),
-                    longitude: Number(longitude)
+            occurencies.map(({ longitude, latitude, id, ...rest }) => (
+              <Marker
+                key={id}
+                pinColor={colors.blue[100]}
+                coordinate={{
+                  latitude: Number(latitude),
+                  longitude: Number(longitude)
+                }}
+              >
+                <Callout
+                  onPress={() => {
+                    console.log('heelo');
                   }}
-                />
-              </>
+                  tooltip
+                  style={{
+                    flex: -1,
+                    position: 'absolute',
+                    maxWidth: 300,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <View className="flex-1 gap-4 justify-around p-3 bg-black-200 rounded-lg">
+                    <Text className="font-bold" numberOfLines={1}>
+                      {rest.contextInfo.mainReason.name}
+                    </Text>
+
+                    <Text numberOfLines={1} variant="subtitle">
+                      {Intl.DateTimeFormat('pt-br', {
+                        dateStyle: 'medium'
+                      }).format(new Date(rest.date))}
+                    </Text>
+
+                    <Text numberOfLines={2} variant="subtitle">
+                      {rest.address}
+                    </Text>
+
+                    <Text
+                      variant="subtitle"
+                      className="underline !text-blue-100"
+                    >
+                      ver mais
+                    </Text>
+                  </View>
+                </Callout>
+              </Marker>
             ))}
         </MapView>
 
         <BottomSheet
-          index={2}
+          index={1}
           onChange={animateButton}
           overDragResistanceFactor={0}
           style={{ flex: 1 }}
@@ -220,8 +271,8 @@ function Map() {
                 <BottomSheetScrollView contentContainerStyle={{ gap: 10 }}>
                   {occurencies.map(
                     ({ id, address, contextInfo, date, ...rest }, i) => {
-                      if (n <= 0)
-                        console.log({ contextInfo, date, address, ...rest });
+                      // if (n <= 0)
+                      //   console.log({ contextInfo, date, address, ...rest });
 
                       n = 2;
                       return (

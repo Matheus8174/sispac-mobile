@@ -5,7 +5,7 @@ import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 import Text from '@/ui/text';
 import { useAuth } from '@/core/auth';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native';
 
 function TabLayout() {
   const { status } = useAuth();

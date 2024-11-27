@@ -44,7 +44,7 @@ appApi.interceptors.request.use((request) => {
 appApi.interceptors.response.use(
   (response) => response,
   (response: AxiosError) => {
-    if (response.status === 401) router.push('/login');
+    if (response.status === 401) router.replace('/login');
 
     return response;
   }
@@ -137,7 +137,7 @@ export async function getUserAvatar() {
   return response;
 }
 
-export async function createForum(data: Forum) {
+export async function createForum(data: Omit<Forum, 'updatedAt'>) {
   const response = await appApi.post('/forums', data);
 
   return response;
@@ -184,7 +184,7 @@ export async function getCommentsByForum(forumId: string) {
   return output;
 }
 
-export async function removeComment(id: number) {
+export async function removeComment(id: number | string) {
   try {
     await appApi.delete(`/forums/comments/${id}`);
   } catch (err) {
