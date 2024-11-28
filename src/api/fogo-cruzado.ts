@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 import type { FogoCruzadoCities, FogoCruzadoOccurrences } from './types';
+import { GetOccurrencesProps } from '@/core/hooks/use-occurencies';
 
 interface Response {
   data: {
@@ -91,10 +92,7 @@ async function handleUnauthorizedRequest(error: AxiosError) {
 export async function getOccurrencesByCityAndState({
   stateId,
   cityId
-}: {
-  stateId: string;
-  cityId?: string;
-}) {
+}: GetOccurrencesProps) {
   const response = await api.get<FogoCruzadoOccurrences>('/occurrences', {
     params: {
       idState: stateId,

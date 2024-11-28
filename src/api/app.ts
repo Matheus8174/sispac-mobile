@@ -185,9 +185,5 @@ export async function getCommentsByForum(forumId: string) {
 }
 
 export async function removeComment(id: number | string) {
-  try {
-    await appApi.delete(`/forums/comments/${id}`);
-  } catch (err) {
-    console.log('ERR: ', err);
-  }
+  await appApi.delete(`/forums/comments/${id}`);
 }

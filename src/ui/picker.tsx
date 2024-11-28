@@ -13,6 +13,10 @@ import Text from './text';
 export interface StatesPickerData {
   id: string;
   name: string;
+  coordinates: {
+    latitude: number;
+    longitude: number;
+  };
 }
 
 interface StatesPickerProps {
